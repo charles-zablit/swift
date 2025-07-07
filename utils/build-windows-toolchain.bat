@@ -18,7 +18,7 @@ echo Reeinvoking script in the default environment
 set TEMP=%~dp0..\..\tmp
 mkdir %TEMP% 2>&1 1>nul
 echo set PYTHON_HOME=%PYTHON_HOME%> %TEMP%\call-build.cmd
-echo set SKIP_TESTS=%SKIP_TESTS%>> %TEMP%\call-build.cmd
+echo set SKIP_TOOLCHAIN_TESTS=%SKIP_TOOLCHAIN_TESTS%>> %TEMP%\call-build.cmd
 echo set SKIP_PACKAGING=%SKIP_PACKAGING%>> %TEMP%\call-build.cmd
 echo set SKIP_UPDATE_CHECKOUT=%SKIP_UPDATE_CHECKOUT%>> %TEMP%\call-build.cmd
 echo set REPO_SCHEME=%REPO_SCHEME%>> %TEMP%\call-build.cmd
@@ -62,7 +62,7 @@ set NINJA_STATUS=[%%f/%%t][%%p][%%es]
 
 :: Build the -Test argument, if any, by subtracting skipped tests
 set TestArg=-Test lld,lldb,swift,dispatch,foundation,xctest,swift-format,sourcekit-lsp,
-for %%I in (%SKIP_TESTS%) do (call set TestArg=%%TestArg:%%I,=%%)
+for %%I in (%SKIP_TOOLCHAIN_TESTS%) do (call set TestArg=%%TestArg:%%I,=%%)
 if "%TestArg:~-1%"=="," (set TestArg=%TestArg:~0,-1%) else (set TestArg= )
 
 :: Build the -SkipPackaging argument, if any
