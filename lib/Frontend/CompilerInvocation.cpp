@@ -3626,14 +3626,19 @@ static bool ParseIRGenArgs(IRGenOptions &Opts, ArgList &Args,
                    debugFormatArg->getAsString(Args), "-g");
   }
   if (Opts.DebugInfoFormat == IRGenDebugInfoFormat::CodeView &&
-      (Opts.DebugInfoLevel == IRGenDebugInfoLevel::LineTables ||
-       Opts.DebugInfoLevel == IRGenDebugInfoLevel::DwarfTypes)) {
+      Opts.DebugInfoLevel == IRGenDebugInfoLevel::LineTables) {
     const Arg *debugFormatArg = Args.getLastArg(options::OPT_debug_info_format);
     Diags.diagnose(SourceLoc(), diag::error_argument_not_allowed_with,
-                   debugFormatArg->getAsString(Args),
-                   Opts.DebugInfoLevel == IRGenDebugInfoLevel::LineTables
-                     ? "-gline-tables-only"
-                     : "-gdwarf_types");
+                   debugFormatArg->getAsString(Args), "-gline-tables-only");
+  }
+  // When emitting CodeView debug info, promote -g (Normal/ASTTypes) to
+  // -gdwarf-types (DwarfTypes) so that struct/enum/class members are included
+  // in the PDB. Unlike LLDB (which can reconstruct Swift types from module
+  // metadata), PDB consumers such as Visual Studio rely entirely on the type
+  // records in the PDB, so member information must be present.
+  if (Opts.DebugInfoFormat == IRGenDebugInfoFormat::CodeView &&
+      Opts.DebugInfoLevel == IRGenDebugInfoLevel::ASTTypes) {
+    Opts.DebugInfoLevel = IRGenDebugInfoLevel::DwarfTypes;
   }
 
   if (auto A = Args.getLastArg(OPT_dwarf_version)) {
