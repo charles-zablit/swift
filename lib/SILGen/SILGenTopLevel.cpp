@@ -169,11 +169,9 @@ void SILGenModule::emitEntryPoint(SourceFile *SF, SILFunction *TopLevel) {
 
     // Then end the lifetime of the error.
     //
-    // We do this to appease the ownership verifier. We do not care about
-    // actually destroying the value since we are going to immediately exit,
-    // so this saves us a slight bit of code-size since end_lifetime is
-    // stripped out after ownership is removed.
-    TopLevelSGF.B.createEndLifetime(moduleLoc, error);
+    // Control continues on to return a non-zero exit code, so this block is not
+    // a dead end and the error has to be destroyed.
+    TopLevelSGF.B.createDestroyValue(moduleLoc, error);
 
     // Signal an abnormal exit by returning 1.
     TopLevelSGF.Cleanups.emitCleanupsForReturn(CleanupLocation(moduleLoc),
