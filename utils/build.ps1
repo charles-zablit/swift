@@ -725,7 +725,9 @@ $WindowsSDKBuilds = @($WindowsSDKArchitectures | ForEach-Object {
 
 ## Helpers for logging and timing build steps.
 
-$TimingData = New-Object System.Collections.Generic.List[System.Object]
+# Avoid New-Object: enumerating its [psobject]-wrapped List[object] throws
+# "Argument types do not match", see https://github.com/PowerShell/PowerShell/issues/27558
+$TimingData = [System.Collections.Generic.List[System.Object]]::new()
 $CurrentOperation = $null
 $BuildStopwatch = [Diagnostics.Stopwatch]::StartNew()
 $RecordTimings = $Summary -or $Trace
